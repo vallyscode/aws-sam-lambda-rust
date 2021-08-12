@@ -1,0 +1,93 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Hey/Bye service.
+  Basic Rust lambda example.
+
+Parameters:
+  Env:
+    Description: Logical environment
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - test
+  App:
+    Description: Application name
+    Type: String
+    Default: hey-bye-service
+
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+
+  RestApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Description: "Rest api for hey/bye service"
+      StageName: !Ref Env
+
+  HeyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Says hey
+      CodeUri: .
+      Handler: bootstrap
+      Runtime: provided.al2
+      Tracing: Active
+      Events:
+        Greetings:
+          Type: Api
+          Properties:
+            RestApiId: !Ref RestApi
+            Path: /hey
+            Method: GET
+      Tags:
+        Environment: !Ref Env
+        Application: !Ref App
+    Metadata:
+      BuildMethod: makefile
+
+  ByeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Say bye
+      CodeUri: .
+      Handler: bootstrap
+      Runtime: provided.al2
+      Tracing: Active
+      Events:
+        Greetings:
+          Type: Api
+          Properties:
+            RestApiId: !Ref RestApi
+            Path: /bye
+            Method: GET
+      Tags:
+        Environment: !Ref Env
+        Application: !Ref App
+    Metadata:
+      BuildMethod: makefile
+
+
+Outputs:
+  HeyRestAPI:
+    Description: "API Gateway endpoint URL for hey"
+    Value: !Sub "https://${RestApi}.execute-api.${AWS::Region}.amazonaws.com/${Env}/hey"
+  HeyFunction:
+    Description: "Hey function ARN"
+    Value: !GetAtt HeyFunction.Arn
+  HeyFunctionIamRole:
+    Description: "Implicit IAM Role created for hey function"
+    Value: !GetAtt HeyFunctionRole.Arn
+  ByeRestAPI:
+    Description: "API Gateway endpoint URL for bye"
+    Value: !Sub "https://${RestApi}.execute-api.${AWS::Region}.amazonaws.com/${Env}/bye"
+  ByeFunction:
+    Description: "Bye function ARN"
+    Value: !GetAtt ByeFunction.Arn
+  ByeFunctionIamRole:
+    Description: "Implicit IAM Role created for bye function"
+    Value: !GetAtt ByeFunctionRole.Arn

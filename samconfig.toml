@@ -1,0 +1,22 @@
+version = 0.1
+[dev]
+[dev.deploy]
+[dev.deploy.parameters]
+stack_name = "dev-hey-bye-service"
+s3_bucket = "basicappdeployment"
+s3_prefix = "dev-hey-bye-service"
+region = "eu-west-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_NAMED_IAM"
+parameter_overrides = "Env=\"dev\""
+
+[test]
+[test.deploy]
+[test.deploy.parameters]
+stack_name = "test-hey-bye-service"
+s3_bucket = "basicappdeployment"
+s3_prefix = "test-hey-bye-service"
+region = "eu-west-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_NAMED_IAM"
+parameter_overrides = "Env=\"test\""
